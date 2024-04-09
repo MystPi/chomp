@@ -1,13 +1,13 @@
 // IMPORTS ---------------------------------------------------------------------
 
 import gleam/int
+import gleam/io
 import gleam/order.{Eq, Gt, Lt}
 import gleam/regex
 import gleam/set
 import gleam/string
-import gleam/io
 import gleeunit/should
-import nibble/lexer.{
+import chomp/lexer.{
   type Matcher, type Token, Drop, Keep, NoMatch, Skip, Span, Token,
 }
 
@@ -122,7 +122,7 @@ fn lexer(_) -> List(Matcher(TokenT, Int)) {
     // Our custom indentation lexer
     indentation,
     // Ignore all other whitespace
-    lexer.whitespace(Nil)
-    |> lexer.ignore,
+      lexer.whitespace(Nil)
+      |> lexer.ignore,
   ]
 }

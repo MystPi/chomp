@@ -3,8 +3,8 @@
 import gleam/io
 import gleam/list
 import gleeunit/should
-import nibble.{type Parser, do, return}
-import nibble/lexer.{type Token}
+import chomp.{type Parser, do, return}
+import chomp/lexer.{type Token}
 
 // STRESS TESTS ----------------------------------------------------------------
 
@@ -23,13 +23,13 @@ pub fn do_tco_test() {
 
 fn should(
   description: String,
-  run: fn(fn(List(Token(tok)), a, Parser(a, tok, ctx)) -> Nil) -> Nil,
+  run: fn(fn(List(Token(tok)), a, Parser(a, e, tok, ctx)) -> Nil) -> Nil,
 ) -> Nil {
   use input, expected, parser <- run
 
   io.print("should " <> description)
 
-  nibble.run(input, parser)
+  chomp.run(input, parser)
   |> should.be_ok
   |> should.equal(expected)
 

@@ -4,7 +4,7 @@ import gleam/io
 import gleam/set
 import gleam/string
 import gleeunit/should
-import nibble/lexer.{type Matcher, type Token, Span, Token}
+import chomp/lexer.{type Matcher, type Token, Span, Token}
 
 // TYPES -----------------------------------------------------------------------
 
@@ -165,7 +165,7 @@ pub fn keyword_breaker_test() {
     lexer.keyword("as", "\\s", Kwd("as")),
     lexer.keyword("assert", "\\s", Var("assert")),
     lexer.token(" ", Nil)
-    |> lexer.ignore(),
+      |> lexer.ignore(),
   ])
 }
 

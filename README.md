@@ -1,22 +1,25 @@
-# nibble
+# chomp
 
 A lexer and parser combinator library inspired by [`elm/parser`](https://github.com/elm/parser).
 
-[![Package Version](https://img.shields.io/hexpm/v/nibble)](https://hex.pm/packages/nibble)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/nibble/)
+> This package is a fork of [nibble](https://github.com/hayleigh-dot-dev/gleam-nibble) that does some things differently. Most notably, errors are handled differently (with dead ends removed) and custom errors can be thrown. Some parsers have also been removed or modified and others added.
+>
+>If migrating from nibble, be aware that things may not work the same!
 
-✨ This project is written in **pure Gleam** so you can use it anywhere Gleam
-runs: Erlang, Elixir, Node, Deno, and the browser!
+[![Package Version](https://img.shields.io/hexpm/v/chomp)](https://hex.pm/packages/chomp)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/chomp/)
+
+✨ This project is written in **pure Gleam** so you can use it with both the Erlang and JavaScript targets.
 
 ## Quick start
 
-If you just want to get a feel for what nibble can do, check out the example
+If you just want to get a feel for what chomp can do, check out the example
 below.
 
 ```gleam
 import gleam/option.{None, Some}
-import nibble.{do, return}
-import nibble/lexer
+import chomp.{do, return}
+import chomp/lexer
 
 type Point {
   Point(x: Int, y: Int)
@@ -32,7 +35,7 @@ type Token {
 pub fn main() {
   // Your lexer knows how to take an input string and
   // turn it into a flat list of tokens. You define the
-  // type of token you want to use, but nibble will wrap
+  // type of token you want to use, but chomp will wrap
   // that up in its own `Token` type that includes the
   // source span and original lexeme for each token.
   let lexer =
@@ -42,7 +45,7 @@ pub fn main() {
       lexer.token(")", RParen),
       lexer.token(",", Comma),
       // Skip over whitespace, we don't care about it!
-        lexer.whitespace(Nil)
+      lexer.whitespace(Nil)
         |> lexer.ignore,
     ])
 
@@ -52,25 +55,25 @@ pub fn main() {
   let int_parser = {
     // Use `take_map` to only consume certain kinds of tokens and transform the
     // result.
-    use tok <- nibble.take_map("expected number")
+    use tok <- chomp.take_map
     case tok {
       Num(n) -> Some(n)
       _ -> None
     }
-  }
+  } |> chomp.or_error("expected a number")
 
   let parser = {
-    use _ <- do(nibble.token(LParen))
+    use _ <- do(chomp.token(LParen))
     use x <- do(int_parser)
-    use _ <- do(nibble.token(Comma))
+    use _ <- do(chomp.token(Comma))
     use y <- do(int_parser)
-    use _ <- do(nibble.token(RParen))
+    use _ <- do(chomp.token(RParen))
 
     return(Point(x, y))
   }
 
   let assert Ok(tokens) = lexer.run("(1, 2)", lexer)
-  let assert Ok(point) = nibble.run(tokens, parser)
+  let assert Ok(point) = chomp.run(tokens, parser)
 
   point.x //=> 1
   point.y //=> 2
@@ -80,10 +83,10 @@ pub fn main() {
 
 ## Installation
 
-If available on Hex this package can be added to your Gleam project:
+This package can be added to your Gleam project:
 
 ```sh
-gleam add nibble
+gleam add chomp
 ```
 
-and its documentation can be found at <https://hexdocs.pm/nibble>.
+and its documentation can be found at <https://hexdocs.pm/chomp>.
