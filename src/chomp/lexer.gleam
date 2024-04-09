@@ -1,4 +1,4 @@
-//// Nibble takes a different approach to many other parser combinator libraries
+//// Chomp takes a different approach to many other parser combinator libraries
 //// by also providing a _lexer_ combinator module that you use to turn an input
 //// string into a list of tokens.
 ////
@@ -7,7 +7,7 @@
 //// parser generators. On the other hand, writing a lexer by hand can be a bit
 //// tedious and difficult.
 ////
-//// Nibble aims to provide a happy middle-ground by making it easy to produce
+//// Chomp aims to provide a happy middle-ground by making it easy to produce
 //// OK-performing lexers and then use parser combinators that can be much faster
 //// working on the smaller token stream.
 ////
@@ -61,7 +61,7 @@ pub type Match(a, mode) {
   NoMatch
 }
 
-/// You use Nibble's lexer to turn a string into a list of tokens that your parser
+/// You use chomp's lexer to turn a string into a list of tokens that your parser
 /// will eventually consume. The `Token` type contains the lexeme that was consumed
 /// (aka the raw input string), the source [`Span`](#Span) of the consumed lexeme
 /// to locate it in the source, and whatever token value your lexer produces.
