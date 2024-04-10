@@ -515,9 +515,9 @@ pub fn many1(parser: Parser(a, e, tok, ctx)) -> Parser(List(a), e, tok, ctx) {
 /// Parse until the end of the token stream, returning a list of the results.
 ///
 /// 💡 This parser produces better error messages than using both [`many`](#many)
-/// and [`end`](#end) in sequence, so you'll often want to use this function
-/// instead. A common use-case is when you're parsing top-level statements or
-/// expressions in a programming language until the end of the file.
+/// and [`end`](#end) in order, so you'll often want to use this function instead.
+/// A common use-case is when you're parsing top-level statements or expressions
+/// in a programming language until the end of the file.
 ///
 /// ```
 /// use statements <- do(chomp.until_end(statement()))
@@ -543,7 +543,7 @@ pub fn until_end(parser: Parser(a, e, tok, ctx)) -> Parser(List(a), e, tok, ctx)
   }
 }
 
-///
+/// Parse until the given token is encountered, returning a list of the results.
 ///
 pub fn until(
   parser: Parser(a, e, tok, ctx),
