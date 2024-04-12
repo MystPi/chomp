@@ -2,9 +2,9 @@
 
 A lexer and parser combinator library inspired by [`elm/parser`](https://github.com/elm/parser).
 
-> This package is a fork of [nibble](https://github.com/hayleigh-dot-dev/gleam-nibble) that does some things differently. Most notably, errors are handled differently (with dead ends removed) and custom errors can be thrown. Some parsers have also been removed or modified and others added.
+> This package is a fork of [nibble](https://github.com/hayleigh-dot-dev/gleam-nibble) that does some things differently. Most notably, error dead ends are removed (instead favoring new functions for updating errors), and custom errors can be thrown. Some parsers have also been removed or modified and others added.
 >
->If migrating from nibble, be aware that things may not work the same!
+> If coming from nibble, be aware that things may not work the same!
 
 [![Package Version](https://img.shields.io/hexpm/v/chomp)](https://hex.pm/packages/chomp)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/chomp/)

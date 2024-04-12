@@ -20,8 +20,7 @@ import gleam/option.{type Option, None, Some}
 ///
 /// 2) `e` is the type of custom error that you can choose to throw. This could
 ///   be a `String` for simple errors such as "I expected an expression" or
-///   something more complex. You can choose to use `Nil` if you don't plan on
-///   throwing custom errors.
+///   something more complex.
 ///
 /// 3) `tok` is the type of tokens that the parser knows how to consume. You can
 ///   take a look at the [`Token`](./chomp/lexer#Token) type for a bit more info,
@@ -98,7 +97,8 @@ pub type Error(e, tok) {
   /// The parser expected a certain token but got a different one instead.
   Expected(tok, got: tok)
   /// The parser encountered an unexpected token. This error is not very specific,
-  /// so it's often best to replace it using the [`or_error`](#or_error) function.
+  /// so it's often best to replace it using the [`or_error`](#or_error) function
+  /// when possible.
   Unexpected(tok)
 }
 
