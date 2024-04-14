@@ -333,6 +333,9 @@ pub fn replace(
 /// error. This function is extremely useful for providing custom error messages
 /// to parsers such as `one_of`, `take_map`, and `take_if`.
 ///
+/// Note that `EndOfInput` errors are not replaced to minimize confusing error
+/// messages.
+///
 /// ```gleam
 /// import chomp
 ///
@@ -355,6 +358,8 @@ pub fn or_error(
   use state <- Parser
 
   case runwrap(state, parser) {
+    Fail(committed, EndOfInput, pos, ctx) ->
+      Fail(committed, EndOfInput, pos, ctx)
     Fail(Committed(False), _, pos, ctx) ->
       Fail(Committed(False), Custom(error), pos, ctx)
     result -> result
