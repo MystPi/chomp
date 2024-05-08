@@ -100,6 +100,8 @@ pub type Error(e, tok) {
   /// so it's often best to replace it using the [`or_error`](#or_error) function
   /// when possible.
   Unexpected(tok)
+  /// A parser was called with incorrect input.
+  BadParser(String)
 }
 
 // RUNNING PARSERS -------------------------------------------------------------
@@ -458,7 +460,13 @@ pub fn one_of(parsers: List(Parser(a, e, tok, ctx))) -> Parser(a, e, tok, ctx) {
   use state <- Parser
 
   case parsers {
-    [] -> panic as "one_of requires at least one parser"
+    [] ->
+      Fail(
+        Committed(False),
+        BadParser("one_of requires at least one parser"),
+        state.pos,
+        state.ctx,
+      )
     [parser] -> runwrap(state, parser)
     [parser, ..rest] ->
       case runwrap(state, parser) {

@@ -282,7 +282,7 @@ pub fn int_with_separator(
   to_value: fn(Int) -> a,
 ) -> Matcher(a, mode) {
   let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^-*[0-9" <> separator <> "]+$")
+  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
 
   use mode, lexeme, lookahead <- Matcher
 
@@ -311,10 +311,10 @@ pub fn float_with_separator(
   to_value: fn(Float) -> a,
 ) -> Matcher(a, mode) {
   let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^-*[0-9" <> separator <> "]+$")
+  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
     regex.from_string(
-      "^-*[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
+      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
     )
 
   use mode, lexeme, lookahead <- Matcher
@@ -349,10 +349,10 @@ pub fn number_with_separator(
   from_float: fn(Float) -> a,
 ) -> Matcher(a, mode) {
   let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^-*[0-9" <> separator <> "]+$")
+  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
     regex.from_string(
-      "^-*[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
+      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
     )
 
   use mode, lexeme, lookahead <- Matcher
