@@ -259,7 +259,7 @@ fn should_commit(a: Committed, or b: Committed) -> Committed {
 /// This is very useful for running parsers in sequence with Gleam's `use` syntax.
 ///
 /// ```
-/// import chomp
+/// import chomp.{do, return}
 ///
 /// fn point() {
 ///   use _ <- do(chomp.token(LParen))
@@ -368,10 +368,10 @@ pub fn or_error(
   }
 }
 
-/// Run a parser and if it fails, return the given error. This parser may seem
-/// similiar to [`or_error`](#or_error), but it's not quite the same—this one
-/// does not care whether the parser consumed any tokens when it failed. This
-/// means that if you have a parser like this:
+/// Run a parser and if it fails, return the given error. This parser is similiar
+/// to [`or_error`](#or_error), but it's not quite the same—this one does not
+/// care whether the parser consumed any tokens when it failed. That means that
+/// if you have a parser like this:
 ///
 /// ```
 /// chomp.one_of([function(), constant()])
@@ -379,8 +379,23 @@ pub fn or_error(
 /// ```
 ///
 /// You will always get the error message "I expected a function or constant" even
-/// if the `function()` parser consumed tokens—a behavior that probably isn't
+/// if any of the `one_of` parsers consumed tokens—a behavior that probably isn't
 /// what you want.
+///
+/// For instance, if this was parsed:
+///
+/// ```js
+/// function 23() {}
+/// //       ^^ this is the error
+/// ```
+///
+/// We would get the error message "I expected a function or constant" because the
+/// `function` parser's error was swallowed by `replace_error`. Contrast that to
+/// `or_error`, where we would get something much better such as "I expected an
+/// identifier".
+///
+/// Of course there *are* cases where `replace_error` can be helpful; just be
+/// aware that you'll often want to reach for `or_error` first.
 ///
 pub fn replace_error(
   parser: Parser(a, e, tok, ctx),
@@ -424,6 +439,12 @@ pub fn any() -> Parser(tok, e, tok, ctx) {
 }
 
 /// Parse a token of a particular type, returning its position.
+///
+/// ```
+/// use start_pos <- do(chomp.token(LParen))
+/// // ...
+/// use end_pos <- do(chomp.token(RParen))
+/// ```
 ///
 pub fn token(tok: tok) -> Parser(Span, e, tok, ctx) {
   use state <- Parser
