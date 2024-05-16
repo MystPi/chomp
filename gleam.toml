@@ -5,7 +5,7 @@ version = "1.0.0"
 # your project to the Hex package manager.
 #
 licences = ["Apache-2.0"]
-description = "Lexer step + parser combinators + great error messages [nibble fork]"
+description = "🍪 Lexer step + parser combinators + great error messages [nibble fork]"
 repository = { type = "github", user = "MystPi", repo = "chomp" }
 
 [dependencies]
