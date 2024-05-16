@@ -52,15 +52,16 @@ pub fn main() {
   // Your parser(s!) know how to transform a list of
   // tokens into whatever you want. You have the full
   // power of Gleam here, so you can go wild!
-  let int_parser = {
+  let int_parser =
     // Use `take_map` to only consume certain kinds of tokens and transform the
     // result.
-    use tok <- chomp.take_map
-    case tok {
-      Num(n) -> Some(n)
-      _ -> None
-    }
-  } |> chomp.or_error("expected a number")
+    chomp.take_map(fn(tok) {
+      case tok {
+        Num(n) -> Some(n)
+        _ -> None
+      }
+    })
+    |> chomp.or_error("expected a number")
 
   let parser = {
     use _ <- do(chomp.token(LParen))
