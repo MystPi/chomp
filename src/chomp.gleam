@@ -1,6 +1,7 @@
 // IMPORTS ---------------------------------------------------------------------
 
-import chomp/lexer.{type Span, type Token, Span, Token}
+import chomp/lexer.{type Token, Token}
+import chomp/span.{type Span, Span}
 import gleam/dict.{type Dict}
 import gleam/io
 import gleam/list

@@ -14,6 +14,7 @@
 
 // IMPORTS ---------------------------------------------------------------------
 
+import chomp/span.{type Span, Span}
 import gleam/float
 import gleam/function
 import gleam/int
@@ -63,20 +64,12 @@ pub type Match(a, mode) {
 
 /// You use chomp's lexer to turn a string into a list of tokens that your parser
 /// will eventually consume. The `Token` type contains the lexeme that was consumed
-/// (aka the raw input string), the source [`Span`](#Span) of the consumed lexeme
-/// to locate it in the source, and whatever token value your lexer produces.
+/// (aka the raw input string), the source [`Span`](./span.html#Span) of the
+/// consumed lexeme to locate it in the source, and whatever token value your lexer
+/// produces.
 ///
 pub type Token(a) {
   Token(span: Span, lexeme: String, value: a)
-}
-
-/// A source span is a range into the source string that represents the start and
-/// end of a lexeme in a human-readable way. That means instead of a straight index
-/// into the string you get a row and column for the start and end instead!
-///
-///
-pub type Span {
-  Span(row_start: Int, col_start: Int, row_end: Int, col_end: Int)
 }
 
 ///
@@ -313,9 +306,7 @@ pub fn float_with_separator(
   let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
   let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
-    regex.from_string(
-      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
-    )
+    regex.from_string("^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$")
 
   use mode, lexeme, lookahead <- Matcher
   let is_int = !regex.check(digit, lookahead) && regex.check(integer, lexeme)
@@ -351,9 +342,7 @@ pub fn number_with_separator(
   let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
   let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
-    regex.from_string(
-      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
-    )
+    regex.from_string("^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$")
 
   use mode, lexeme, lookahead <- Matcher
   let is_int = !regex.check(digit, lookahead) && regex.check(integer, lexeme)
