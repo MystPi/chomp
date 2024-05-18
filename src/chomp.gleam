@@ -227,7 +227,7 @@ pub fn lazy(parser: fn() -> Parser(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
 /// This is most useful when you want to quickly try a few different parsers using
 /// [`one_of`](#one_of).
 ///
-/// 🚨 Backtracing parsers can drastically reduce performance, so you should avoid
+/// 🚨 Backtracking parsers can drastically reduce performance, so you should avoid
 /// them where possible. A common reason folks reach for backtracking is when they
 /// want to try multiple branches that start with the same token or same sequence
 /// of tokens.
