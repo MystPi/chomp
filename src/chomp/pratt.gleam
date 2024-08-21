@@ -23,6 +23,11 @@ pub opaque type Operator(a, e, tok, ctx) {
   )
 }
 
+pub type Precedence {
+  Left(Int)
+  Right(Int)
+}
+
 // PRATT PARSING ---------------------------------------------------------------
 
 pub fn expression(
@@ -85,28 +90,46 @@ pub fn prefix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
+  prefix_custom(precedence, operator, fn(a, _) { apply(a) })
+}
+
+pub fn prefix_custom(
+  precedence: Int,
+  operator: Parser(x, e, tok, ctx),
+  apply: fn(a, x) -> a,
+) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
   fn(config) {
-    use _ <- chomp.do(operator)
+    use op <- chomp.do(operator)
     use subexpr <- chomp.do(sub_expression(config, precedence))
 
-    chomp.return(apply(subexpr))
+    chomp.return(apply(subexpr, op))
   }
 }
 
-pub fn infix_left(
-  precedence: Int,
+pub fn infix(
+  precedence: Precedence,
   operator: Parser(x, e, tok, ctx),
   apply: fn(a, a) -> a,
 ) -> Operator(a, e, tok, ctx) {
-  make_infix(#(precedence, precedence), operator, apply)
+  infix_custom(precedence, operator, fn(a, b, _) { apply(a, b) })
 }
 
-pub fn infix_right(
-  precedence: Int,
+pub fn infix_custom(
+  precedence: Precedence,
   operator: Parser(x, e, tok, ctx),
-  apply: fn(a, a) -> a,
+  apply: fn(a, a, x) -> a,
 ) -> Operator(a, e, tok, ctx) {
-  make_infix(#(precedence, precedence - 1), operator, apply)
+  let #(left_precedence, right_precedence) = case precedence {
+    Left(p) -> #(p, p)
+    Right(p) -> #(p, p - 1)
+  }
+  use config <- Operator
+  #(left_precedence, fn(lhs) {
+    use op <- chomp.do(operator)
+    use subexpr <- chomp.do(sub_expression(config, right_precedence))
+
+    chomp.return(apply(lhs, subexpr, op))
+  })
 }
 
 pub fn postfix(
@@ -114,24 +137,23 @@ pub fn postfix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> Operator(a, e, tok, ctx) {
+  postfix_custom(precedence, operator, fn(a, _) { apply(a) })
+}
+
+pub fn postfix_custom(
+  precedence: Int,
+  operator: Parser(x, e, tok, ctx),
+  apply: fn(a, x) -> a,
+) -> Operator(a, e, tok, ctx) {
   use _ <- Operator
   #(precedence, fn(lhs) {
-    use _ <- chomp.do(operator)
-    chomp.return(apply(lhs))
+    use op <- chomp.do(operator)
+    chomp.return(apply(lhs, op))
   })
 }
 
-fn make_infix(
-  precedence: #(Int, Int),
-  operator: Parser(x, e, tok, ctx),
-  apply: fn(a, a) -> a,
-) -> Operator(a, e, tok, ctx) {
-  let #(left_precedence, right_precedence) = precedence
-  use config <- Operator
-  #(left_precedence, fn(lhs) {
-    use _ <- chomp.do(operator)
-    use subexpr <- chomp.do(sub_expression(config, right_precedence))
-
-    chomp.return(apply(lhs, subexpr))
-  })
+pub fn operator_custom(
+  build: fn(Config(a, e, tok, ctx)) -> #(Int, fn(a) -> Parser(a, e, tok, ctx)),
+) {
+  Operator(build)
 }
