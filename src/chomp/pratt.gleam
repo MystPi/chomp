@@ -85,11 +85,19 @@ pub fn prefix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
+  prefix_custom(precedence, operator, fn(a, _) { apply(a) })
+}
+
+pub fn prefix_custom(
+  precedence: Int,
+  operator: Parser(x, e, tok, ctx),
+  apply: fn(a, x) -> a,
+) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
   fn(config) {
-    use _ <- chomp.do(operator)
+    use op <- chomp.do(operator)
     use subexpr <- chomp.do(sub_expression(config, precedence))
 
-    chomp.return(apply(subexpr))
+    chomp.return(apply(subexpr, op))
   }
 }
 
@@ -114,10 +122,18 @@ pub fn postfix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> Operator(a, e, tok, ctx) {
+  postfix_custom(precedence, operator, fn(a, _) { apply(a) })
+}
+
+pub fn postfix_custom(
+  precedence: Int,
+  operator: Parser(x, e, tok, ctx),
+  apply: fn(a, x) -> a,
+) -> Operator(a, e, tok, ctx) {
   use _ <- Operator
   #(precedence, fn(lhs) {
-    use _ <- chomp.do(operator)
-    chomp.return(apply(lhs))
+    use op <- chomp.do(operator)
+    chomp.return(apply(lhs, op))
   })
 }
 
