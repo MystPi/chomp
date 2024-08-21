@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Added
+
+- (@TheOnlyTails) `_custom` variants to `prefix`, `infix`, and `postfix` pratt parsers, as well as a new `operator_custom` function. `infix_left` and `infix_right` have been merged into a single `infix` function that accepts a parameter of type `Precedence`.
+
 ## [0.1.0] - 2024-05-16
 
 - Initial release
