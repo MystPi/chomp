@@ -90,16 +90,16 @@ pub fn prefix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
-  prefix_custom(precedence, operator, fn(a, _) { apply(a) })
+  prefix_custom(precedence, fn(_) { operator }, fn(a, _) { apply(a) })
 }
 
 pub fn prefix_custom(
   precedence: Int,
-  operator: Parser(x, e, tok, ctx),
+  operator: fn(Config(a, e, tok, ctx)) -> Parser(x, e, tok, ctx),
   apply: fn(a, x) -> a,
 ) -> fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx) {
   fn(config) {
-    use op <- chomp.do(operator)
+    use op <- chomp.do(operator(config))
     use subexpr <- chomp.do(sub_expression(config, precedence))
 
     chomp.return(apply(subexpr, op))
@@ -111,12 +111,12 @@ pub fn infix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a, a) -> a,
 ) -> Operator(a, e, tok, ctx) {
-  infix_custom(precedence, operator, fn(a, b, _) { apply(a, b) })
+  infix_custom(precedence, fn(_) { operator }, fn(a, b, _) { apply(a, b) })
 }
 
 pub fn infix_custom(
   precedence: Precedence,
-  operator: Parser(x, e, tok, ctx),
+  operator: fn(Config(a, e, tok, ctx)) -> Parser(x, e, tok, ctx),
   apply: fn(a, a, x) -> a,
 ) -> Operator(a, e, tok, ctx) {
   let #(left_precedence, right_precedence) = case precedence {
@@ -125,7 +125,7 @@ pub fn infix_custom(
   }
   use config <- Operator
   #(left_precedence, fn(lhs) {
-    use op <- chomp.do(operator)
+    use op <- chomp.do(operator(config))
     use subexpr <- chomp.do(sub_expression(config, right_precedence))
 
     chomp.return(apply(lhs, subexpr, op))
@@ -137,17 +137,17 @@ pub fn postfix(
   operator: Parser(x, e, tok, ctx),
   apply: fn(a) -> a,
 ) -> Operator(a, e, tok, ctx) {
-  postfix_custom(precedence, operator, fn(a, _) { apply(a) })
+  postfix_custom(precedence, fn(_) { operator }, fn(a, _) { apply(a) })
 }
 
 pub fn postfix_custom(
   precedence: Int,
-  operator: Parser(x, e, tok, ctx),
+  operator: fn(Config(a, e, tok, ctx)) -> Parser(x, e, tok, ctx),
   apply: fn(a, x) -> a,
 ) -> Operator(a, e, tok, ctx) {
-  use _ <- Operator
+  use config <- Operator
   #(precedence, fn(lhs) {
-    use op <- chomp.do(operator)
+    use op <- chomp.do(operator(config))
     chomp.return(apply(lhs, op))
   })
 }
