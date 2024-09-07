@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Added
+
+- `Skip` lexer match can transition the lexer into a new mode.
+
 ## [0.2.1] - 2024-08-21
 
 ### Fixed

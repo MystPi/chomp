@@ -50,8 +50,9 @@ pub type Match(a, mode) {
   /// `Keep` match can also transition the lexer into a new mode.
   Keep(a, mode)
   /// Skip running any additional matchers this iteration, add the next grapheme
-  /// to the accumulated input, and run the next iteration.
-  Skip
+  /// to the accumulated input, and run the next iteration. A `Skip` match can
+  /// also transition the lexer into a new mode.
+  Skip(mode)
   /// Drop the accumulated input and move on to the next iteration. A `Drop`
   /// match can also transition the lexer into a new mode. This match is useful
   /// for discarding input like whitespace or comments.
@@ -162,7 +163,7 @@ pub fn map(matcher: Matcher(a, mode), f: fn(a) -> b) -> Matcher(b, mode) {
 
   case matcher.run(mode, lexeme, lookahead) {
     Keep(value, mode) -> Keep(f(value), mode)
-    Skip -> Skip
+    Skip(mode) -> Skip(mode)
     Drop(mode) -> Drop(mode)
     NoMatch -> NoMatch
   }
@@ -181,7 +182,7 @@ pub fn then(
 
   case matcher.run(mode, lexeme, lookahead) {
     Keep(value, _) -> f(value)
-    Skip -> Skip
+    Skip(mode) -> Skip(mode)
     Drop(mode) -> Drop(mode)
     NoMatch -> NoMatch
   }
@@ -196,7 +197,7 @@ pub fn into(matcher: Matcher(a, mode), f: fn(mode) -> mode) -> Matcher(a, mode) 
 
   case matcher.run(mode, lexeme, lookahead) {
     Keep(value, mode) -> Keep(value, f(mode))
-    Skip -> Skip
+    Skip(mode) -> Skip(mode)
     Drop(mode) -> Drop(f(mode))
     NoMatch -> NoMatch
   }
@@ -211,7 +212,7 @@ pub fn ignore(matcher: Matcher(a, mode)) -> Matcher(b, mode) {
 
   case matcher.run(mode, lexeme, lookahead) {
     Keep(_, mode) -> Drop(mode)
-    Skip -> Skip
+    Skip(mode) -> Skip(mode)
     Drop(mode) -> Drop(mode)
     NoMatch -> NoMatch
   }
@@ -405,7 +406,7 @@ pub fn identifier(
   use mode, lexeme, lookahead <- Matcher
 
   case regex.check(inner, lookahead), regex.check(ident, lexeme) {
-    True, True -> Skip
+    True, True -> Skip(mode)
     False, True ->
       case set.contains(reserved, lexeme) {
         True -> NoMatch
@@ -429,7 +430,7 @@ pub fn try_identifier(
   use mode, lexeme, lookahead <- Matcher
 
   case regex.check(inner, lookahead), regex.check(ident, lexeme) {
-    True, True -> Skip
+    True, True -> Skip(mode)
     False, True ->
       case set.contains(reserved, lexeme) {
         True -> NoMatch
@@ -491,7 +492,7 @@ pub fn comment(start: String, to_value: fn(String) -> a) -> Matcher(a, mode) {
       |> string.drop_left(drop_length)
       |> to_value
       |> Keep(mode)
-    True, _ -> Skip
+    True, _ -> Skip(mode)
     False, _ -> NoMatch
   }
 }
@@ -541,7 +542,7 @@ fn do_run(
     [], #(start_row, start_col, lexeme) ->
       case do_match(mode, lexeme, "", matchers) {
         NoMatch -> Error(NoMatchFound(start_row, start_col, lexeme))
-        Skip -> Error(NoMatchFound(start_row, start_col, lexeme))
+        Skip(_) -> Error(NoMatchFound(start_row, start_col, lexeme))
         Drop(_) -> Ok(list.reverse(state.tokens))
         Keep(value, _) -> {
           let span = Span(start_row, start_col, state.row, state.col)
@@ -581,7 +582,7 @@ fn do_run(
         // consume more input. This is mostly useful for things like identifiers
         // where the current lexeme is in the set of reserved words but we can
         // see the lookahead and know that it's not a reserved word.
-        Skip ->
+        Skip(mode) ->
           do_run(
             lexer,
             mode,
@@ -638,7 +639,7 @@ fn do_match(
 
   case matcher.run(mode, str, lookahead) {
     Keep(_, _) as match -> list.Stop(match)
-    Skip -> list.Stop(Skip)
+    Skip(_) as match -> list.Stop(match)
     Drop(_) as match -> list.Stop(match)
     NoMatch -> list.Continue(NoMatch)
   }
