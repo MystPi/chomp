@@ -82,6 +82,10 @@ pub fn main() {
 
 ```
 
+## Examples
+
+Chomp does not currently have a tutorial or guide, so the best way to learn is through the docs and [examples](./examples/). Feel free to submit a PR if you have a short, well-written parser that you think would serve as a good example!
+
 ## Installation
 
 This package can be added to your Gleam project:
