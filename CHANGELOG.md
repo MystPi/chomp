@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+## [0.3.1] - 2024-09-15
+
 ### Fixed
 
 - Fixed `comment` lexer to work with comments at the end of the input
@@ -38,8 +40,9 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/MystPi/chomp/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/MystPi/chomp/compare/v0.3.1...HEAD
 [0.1.0]: https://github.com/MystPi/chomp/releases/v0.1.0
 [0.2.0]: https://github.com/MystPi/chomp/releases/v0.2.0
 [0.2.1]: https://github.com/MystPi/chomp/releases/v0.2.1
 [0.3.0]: https://github.com/MystPi/chomp/releases/v0.3.0
+[0.3.1]: https://github.com/MystPi/chomp/releases/v0.3.1
