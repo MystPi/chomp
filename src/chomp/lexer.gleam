@@ -487,7 +487,7 @@ pub fn comment(start: String, to_value: fn(String) -> a) -> Matcher(a, mode) {
   use mode, lexeme, lookahead <- Matcher
 
   case string.starts_with(lexeme, start), lookahead {
-    True, "\n" ->
+    True, "\n" | True, "" ->
       lexeme
       |> string.drop_left(drop_length)
       |> to_value

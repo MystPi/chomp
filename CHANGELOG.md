@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `comment` lexer to work with comments at the end of the input
+
 ## [0.3.0] - 2024-09-07
 
 ### Added
