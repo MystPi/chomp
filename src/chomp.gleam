@@ -256,6 +256,7 @@ fn should_commit(a: Committed, or b: Committed) -> Committed {
 
 /// Do the first `parser`, then apply `f` to its result, which returns another
 /// parser and is subsequently run. If the first parser fails, `f` is not called.
+/// Because this parser is so common, we normally import it unqualified.
 ///
 /// This is very useful for running parsers in sequence with Gleam's `use` syntax.
 ///
