@@ -1,4 +1,4 @@
-//// This module is very similiar to the
+//// This module is very similar to the
 //// [`elm-pratt-parser`](https://package.elm-lang.org/packages/dmy/elm-pratt-parser/latest/Pratt)
 //// package in the Elm ecosystem, and much of its docs apply to this module.
 

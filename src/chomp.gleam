@@ -411,7 +411,7 @@ pub fn map_error(
   }
 }
 
-/// Run a parser and if it fails, return the given error. This parser is similiar
+/// Run a parser and if it fails, return the given error. This parser is similar
 /// to [`or_error`](#or_error), but it's not quite the same—this one does not
 /// care whether the parser consumed any tokens when it failed. That means that
 /// if you have a parser like this:
