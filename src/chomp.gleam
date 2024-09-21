@@ -358,13 +358,54 @@ pub fn or_error(
   parser: Parser(a, e, tok, ctx),
   error: e,
 ) -> Parser(a, e, tok, ctx) {
+  map_error(parser, fn(_) { Custom(error) })
+}
+
+/// Run a parser and if it fails and did not consume any tokens, apply the given
+/// function to the error and return the new error. This function provides a
+/// way to add more information to error messages. For example, if you just parsed
+/// some indentation in an indentation-sensitive language and now want to parse
+/// a statement, you could map the statement parser's error to add extra info:
+///
+/// ```gleam
+/// fn parse_statement() {
+///   // parse a statement
+///   |> chomp.or_error("I wanted a statement")
+/// }
+///
+/// fn parse_something() {
+///   use _ <- do(parse_indentation())
+///   use statement <- do(
+///     parse_statement() |> chomp.map_error(because_of_indent)
+///   )
+///   // ...
+/// }
+///
+/// fn because_of_indent(error) {
+///   case error {
+///     chomp.Custom(error) ->
+///       chomp.Custom("Since there was an indent, " <> error)
+///     _ -> error
+///   }
+/// }
+/// ```
+///
+/// Now if parsing the statement in `parse_something` fails, the error message
+/// will be `Since there was an indent, I wanted a statement`. Sweet!
+///
+/// Note that, like `or_error`, `EndOfInput` errors are not changed to minimize
+/// confusing error messages.
+///
+pub fn map_error(
+  parser: Parser(a, e, tok, ctx),
+  map: fn(Error(e, tok)) -> Error(e, tok),
+) -> Parser(a, e, tok, ctx) {
   use state <- Parser
 
   case runwrap(state, parser) {
-    Fail(committed, EndOfInput, pos, ctx) ->
-      Fail(committed, EndOfInput, pos, ctx)
-    Fail(Committed(False), _, pos, ctx) ->
-      Fail(Committed(False), Custom(error), pos, ctx)
+    Fail(_, EndOfInput, _, _) as fail -> fail
+    Fail(Committed(False), error, pos, ctx) ->
+      Fail(Committed(False), map(error), pos, ctx)
     result -> result
   }
 }
