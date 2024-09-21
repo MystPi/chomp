@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Added
+
+- A new `map_error` parser. See its description in the docs for more information.
+
 ## [0.3.1] - 2024-09-15
 
 ### Fixed
