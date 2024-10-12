@@ -71,7 +71,7 @@ fn expression() -> Parser(Float) {
       pratt.prefix(4, chomp.token(Minus), float.negate),
     ],
     // This error is thrown if no operand could be parsed.
-    or_error: "Expected a primary expression",
+    map: chomp.or_error(_, "Expected a primary expression"),
     // There are four operators, each of which is left-associative. The number
     // within the parentheses is the precedence of the operator. Since multiplication
     // and division have higher precedence than addition and subtraction, their

@@ -12,7 +12,7 @@ import gleam/list
 pub opaque type Config(a, e, tok, ctx) {
   Config(
     one_of: List(fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx)),
-    or_error: e,
+    map: fn(Parser(a, e, tok, ctx)) -> Parser(a, e, tok, ctx),
     and_then_one_of: List(Operator(a, e, tok, ctx)),
   )
 }
@@ -32,10 +32,10 @@ pub type Precedence {
 
 pub fn expression(
   one_of first: List(fn(Config(a, e, tok, ctx)) -> Parser(a, e, tok, ctx)),
-  or_error or_error: e,
+  map map: fn(Parser(a, e, tok, ctx)) -> Parser(a, e, tok, ctx),
   and_then then: List(Operator(a, e, tok, ctx)),
 ) -> Parser(a, e, tok, ctx) {
-  let config = Config(first, or_error, then)
+  let config = Config(first, map, then)
   sub_expression(config, 0)
 }
 
@@ -48,7 +48,7 @@ pub fn sub_expression(
     config.one_of
     |> list.map(fn(p) { p(config) })
     |> chomp.one_of
-    |> chomp.or_error(config.or_error)
+    |> config.map
   }
 
   let go = fn(expr) {
