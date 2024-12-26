@@ -18,7 +18,7 @@ import chomp/span.{type Span, Span}
 import gleam/float
 import gleam/int
 import gleam/list
-import gleam/regex
+import gleam/regexp
 import gleam/result
 import gleam/set.{type Set}
 import gleam/string
@@ -236,11 +236,11 @@ pub fn token(str: String, value: a) -> Matcher(a, mode) {
 /// helpful to separate the two concepts.
 ///
 pub fn symbol(str: String, breaker: String, value: a) -> Matcher(a, mode) {
-  let assert Ok(break) = regex.from_string(breaker)
+  let assert Ok(break) = regexp.from_string(breaker)
 
   use mode, lexeme, lookahead <- Matcher
 
-  case lexeme == str && { lookahead == "" || regex.check(break, lookahead) } {
+  case lexeme == str && { lookahead == "" || regexp.check(break, lookahead) } {
     True -> Keep(value, mode)
     False -> NoMatch
   }
@@ -252,11 +252,11 @@ pub fn symbol(str: String, breaker: String, value: a) -> Matcher(a, mode) {
 /// what characters should trigger a match.
 ///
 pub fn keyword(str: String, breaker: String, value: a) -> Matcher(a, mode) {
-  let assert Ok(break) = regex.from_string(breaker)
+  let assert Ok(break) = regexp.from_string(breaker)
 
   use mode, lexeme, lookahead <- Matcher
 
-  case lexeme == str && { lookahead == "" || regex.check(break, lookahead) } {
+  case lexeme == str && { lookahead == "" || regexp.check(break, lookahead) } {
     True -> Keep(value, mode)
     False -> NoMatch
   }
@@ -274,12 +274,12 @@ pub fn int_with_separator(
   separator: String,
   to_value: fn(Int) -> a,
 ) -> Matcher(a, mode) {
-  let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
+  let assert Ok(digit) = regexp.from_string("[0-9" <> separator <> "]")
+  let assert Ok(integer) = regexp.from_string("^[0-9" <> separator <> "]+$")
 
   use mode, lexeme, lookahead <- Matcher
 
-  case !regex.check(digit, lookahead) && regex.check(integer, lexeme) {
+  case !regexp.check(digit, lookahead) && regexp.check(integer, lexeme) {
     False -> NoMatch
     True -> {
       let assert Ok(num) =
@@ -303,14 +303,16 @@ pub fn float_with_separator(
   separator: String,
   to_value: fn(Float) -> a,
 ) -> Matcher(a, mode) {
-  let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
+  let assert Ok(digit) = regexp.from_string("[0-9" <> separator <> "]")
+  let assert Ok(integer) = regexp.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
-    regex.from_string("^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$")
+    regexp.from_string(
+      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
+    )
 
   use mode, lexeme, lookahead <- Matcher
-  let is_int = !regex.check(digit, lookahead) && regex.check(integer, lexeme)
-  let is_float = !regex.check(digit, lookahead) && regex.check(number, lexeme)
+  let is_int = !regexp.check(digit, lookahead) && regexp.check(integer, lexeme)
+  let is_float = !regexp.check(digit, lookahead) && regexp.check(number, lexeme)
 
   case lexeme {
     "." if is_int -> NoMatch
@@ -339,14 +341,16 @@ pub fn number_with_separator(
   from_int: fn(Int) -> a,
   from_float: fn(Float) -> a,
 ) -> Matcher(a, mode) {
-  let assert Ok(digit) = regex.from_string("[0-9" <> separator <> "]")
-  let assert Ok(integer) = regex.from_string("^[0-9" <> separator <> "]+$")
+  let assert Ok(digit) = regexp.from_string("[0-9" <> separator <> "]")
+  let assert Ok(integer) = regexp.from_string("^[0-9" <> separator <> "]+$")
   let assert Ok(number) =
-    regex.from_string("^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$")
+    regexp.from_string(
+      "^[0-9" <> separator <> "]+\\.[0-9" <> separator <> "]+$",
+    )
 
   use mode, lexeme, lookahead <- Matcher
-  let is_int = !regex.check(digit, lookahead) && regex.check(integer, lexeme)
-  let is_float = !regex.check(digit, lookahead) && regex.check(number, lexeme)
+  let is_int = !regexp.check(digit, lookahead) && regexp.check(integer, lexeme)
+  let is_float = !regexp.check(digit, lookahead) && regexp.check(number, lexeme)
 
   case lexeme, lookahead {
     ".", _ if is_int -> NoMatch
@@ -376,16 +380,16 @@ pub fn number_with_separator(
 ///
 pub fn string(char: String, to_value: fn(String) -> a) -> Matcher(a, mode) {
   let assert Ok(is_string) =
-    regex.from_string(
+    regexp.from_string(
       "^" <> char <> "([^" <> char <> "\\\\]|\\\\[\\s\\S])*" <> char <> "$",
     )
   use mode, lexeme, _ <- Matcher
 
-  case regex.check(is_string, lexeme) {
+  case regexp.check(is_string, lexeme) {
     True ->
       lexeme
-      |> string.drop_left(1)
-      |> string.drop_right(1)
+      |> string.drop_start(1)
+      |> string.drop_end(1)
       |> to_value
       |> Keep(mode)
     False -> NoMatch
@@ -400,12 +404,12 @@ pub fn identifier(
   reserved: Set(String),
   to_value: fn(String) -> a,
 ) -> Matcher(a, mode) {
-  let assert Ok(ident) = regex.from_string("^" <> start <> inner <> "*$")
-  let assert Ok(inner) = regex.from_string(inner)
+  let assert Ok(ident) = regexp.from_string("^" <> start <> inner <> "*$")
+  let assert Ok(inner) = regexp.from_string(inner)
 
   use mode, lexeme, lookahead <- Matcher
 
-  case regex.check(inner, lookahead), regex.check(ident, lexeme) {
+  case regexp.check(inner, lookahead), regexp.check(ident, lexeme) {
     True, True -> Skip(mode)
     False, True ->
       case set.contains(reserved, lexeme) {
@@ -423,13 +427,13 @@ pub fn try_identifier(
   inner: String,
   reserved: Set(String),
   to_value: fn(String) -> a,
-) -> Result(Matcher(a, mode), regex.CompileError) {
-  use ident <- result.then(regex.from_string("^" <> start <> inner <> "*$"))
-  use inner <- result.map(regex.from_string(inner))
+) -> Result(Matcher(a, mode), regexp.CompileError) {
+  use ident <- result.then(regexp.from_string("^" <> start <> inner <> "*$"))
+  use inner <- result.map(regexp.from_string(inner))
 
   use mode, lexeme, lookahead <- Matcher
 
-  case regex.check(inner, lookahead), regex.check(ident, lexeme) {
+  case regexp.check(inner, lookahead), regexp.check(ident, lexeme) {
     True, True -> Skip(mode)
     False, True ->
       case set.contains(reserved, lexeme) {
@@ -458,11 +462,11 @@ pub fn spaces(token: a) -> Matcher(a, mode) {
 ///
 ///
 pub fn spaces_(to_value: fn(String) -> a) -> Matcher(a, mode) {
-  let assert Ok(spaces) = regex.from_string("^[ \\t]+")
+  let assert Ok(spaces) = regexp.from_string("^[ \\t]+")
 
   use mode, lexeme, _ <- Matcher
 
-  case regex.check(spaces, lexeme) {
+  case regexp.check(spaces, lexeme) {
     True -> Keep(to_value(lexeme), mode)
     False -> NoMatch
   }
@@ -471,11 +475,11 @@ pub fn spaces_(to_value: fn(String) -> a) -> Matcher(a, mode) {
 ///
 ///
 pub fn whitespace(token: a) -> Matcher(a, mode) {
-  let assert Ok(whitespace) = regex.from_string("^\\s+$")
+  let assert Ok(whitespace) = regexp.from_string("^\\s+$")
 
   use mode, lexeme, _ <- Matcher
 
-  case regex.check(whitespace, lexeme) {
+  case regexp.check(whitespace, lexeme) {
     True -> Keep(token, mode)
     False -> NoMatch
   }
@@ -489,7 +493,7 @@ pub fn comment(start: String, to_value: fn(String) -> a) -> Matcher(a, mode) {
   case string.starts_with(lexeme, start), lookahead {
     True, "\n" | True, "" ->
       lexeme
-      |> string.drop_left(drop_length)
+      |> string.drop_start(drop_length)
       |> to_value
       |> Keep(mode)
     True, _ -> Skip(mode)
