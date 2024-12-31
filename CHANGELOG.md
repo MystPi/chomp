@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated `gleam_stdlib` to version `0.51.0`.
+- Added `gleam_regexp` to replace the removed `gleam/regex` module.
+- Replaced `string.drop_left` with `string.drop_start`.
+- Replaced `string.drop_right` with `string.drop_end`.
+
 ## [0.4.0] - 2024-09-21
 
 ### Added
